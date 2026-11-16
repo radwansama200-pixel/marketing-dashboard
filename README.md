@@ -2,7 +2,7 @@
 
 An interactive dashboard that turns ad-spend data into a clear budget decision.
 
-**Live demo:** [ https://radwansama200-pixel.github.io/marketing-dashboard/]
+**Live demo:** https://radwansama200-pixel.github.io/marketing-dashboard/
 
 ## What it shows
 - 8 KPIs: revenue, ad spend, ROAS, CAC, conversion rate, AOV, orders, profit after ads
