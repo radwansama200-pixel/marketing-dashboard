@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>داشبورد أداء التسويق – نموذج Demo</title>
+<style>
+:root{color-scheme:light;--bg:#f6f6f4;--surface:#fcfcfb;--ink:#0b0b0b;--ink2:#52514e;--muted:#8a8985;--line:#e4e3df;
+--c1:#2a78d6;--c2:#eb6834;--c3:#1baf7a;--c4:#eda100;--good:#0a7a3d;--warn:#9a6700;--bad:#c4302f;}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#111110;--surface:#1a1a19;--ink:#f0efec;--ink2:#c3c2b7;--muted:#8d8c85;--line:#2e2e2c;
+--c1:#3987e5;--c2:#d95926;--c3:#199e70;--c4:#c98500;--good:#4cc27d;--warn:#e0a93b;--bad:#ef7b7a;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;line-height:1.5}
+.wrap{max-width:860px;margin:0 auto;padding:16px 14px 40px}
+h1{font-size:20px;margin:4px 0 2px}
+.sub{color:var(--ink2);font-size:13px;margin:0 0 14px}
+.demo{display:inline-block;font-size:11px;color:var(--ink2);border:1px solid var(--line);border-radius:99px;padding:1px 9px;margin-inline-start:6px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.grp{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:3px}
+button{font:inherit;font-size:13px;color:var(--ink2);background:none;border:0;border-radius:7px;padding:6px 11px;cursor:pointer;min-height:36px}
+button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+@media(min-width:640px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.kpi .l{font-size:12px;color:var(--ink2)}
+.kpi .v{font-size:24px;font-weight:650;letter-spacing:-.3px;margin:2px 0;direction:ltr;text-align:right}
+.kpi .d{font-size:12px;color:var(--ink2)}
+.up{color:var(--good)}.down{color:var(--bad)}
+h2{font-size:15px;margin:0 0 2px}
+.hint{font-size:12px;color:var(--ink2);margin:0 0 10px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin-bottom:6px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:5px;vertical-align:-1px}
+.chart{position:relative;direction:ltr}
+svg{display:block;width:100%;height:auto;touch-action:pan-y}
+.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.12);display:none;white-space:nowrap;direction:rtl;z-index:2}
+.tip b{display:block;margin-bottom:2px}
+.sec{margin-bottom:14px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 6px;text-align:start;border-bottom:1px solid var(--line)}
+th{font-weight:600;color:var(--ink2);font-size:12px}
+td.n,th.n{text-align:end;direction:ltr;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+.st{font-size:12px;white-space:nowrap}
+.insight{font-size:13.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-inline-start:4px solid var(--c1);border-radius:10px;padding:11px 13px;margin-bottom:14px}
+.foot{font-size:11.5px;color:var(--muted);margin-top:18px}
+.scroll{overflow-x:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>أداء التسويق <span class="demo">بيانات تجريبية</span></h1>
+  <p class="sub">كل الأرقام بالجنيه المصري، ومقارنة التغيّر بالفترة السابقة لها.</p>
+
+  <div class="filters">
+    <div class="grp" id="period" role="group" aria-label="الفترة"></div>
+    <div class="grp" id="channel" role="group" aria-label="القناة"></div>
+  </div>
+
+  <div class="insight" id="insight"></div>
+  <div class="kpis" id="kpis"></div>
+
+  <div class="card sec">
+    <h2>الإيراد مقابل الإنفاق</h2>
+    <p class="hint">الفرق بين الخطين هو العائد على الإعلان. لمس الرسم يعرض تفاصيل اليوم.</p>
+    <div class="legend"><span><i class="sw" style="background:var(--c1)"></i>الإيراد</span><span><i class="sw" style="background:var(--c2)"></i>الإنفاق</span></div>
+    <div class="chart" id="line"><div class="tip" id="tip1"></div></div>
+  </div>
+
+  <div class="card sec">
+    <h2>العائد على الإنفاق (ROAS) حسب القناة</h2>
+    <p class="hint">كل جنيه إنفاق رجّع كام جنيه إيراد. الخط المنقط = نقطة التعادل (من هامش ربح مفترض 40%). الإيميل عائده عالي لأنه شبه بدون تكلفة إعلان، فمتقارنوش بالباقي مباشرة.</p>
+    <div class="chart" id="bars"><div class="tip" id="tip2"></div></div>
+  </div>
+
+  <div class="card sec">
+    <h2>تفاصيل القنوات</h2>
+    <div class="scroll"><table id="tbl"></table></div>
+  </div>
+
+  <p class="foot">نموذج توضيحي ببيانات مولّدة عشوائيًا، مش بيانات عميل حقيقي. الربح بعد الإعلان = الإيراد × هامش الربح المفترض (40%) − الإنفاق، وده بيتعدل بهامش العميل الحقيقي. الحالة: جيد = ROAS أعلى من نقطة التعادل بـ 20%+، متوسط = فوق التعادل، خسارة = تحته. الإيراد المنسوب لكل قناة بيعتمد على نموذج الإسناد (Attribution) المستخدم، وممكن القنوات تتحسب نفس الطلب مرتين.</p>
+</div>
+
+<script>
+(function(){
+// ---------- بيانات تجريبية (seeded) ----------
+function rng(seed){return function(){seed=(seed*1664525+1013904223)%4294967296;return seed/4294967296}}
+var R=rng(7);
+var CH=[
+ {k:'meta',n:'ميتا',c:'var(--c1)',spend:3000,roas:3.2,cpc:4},
+ {k:'tiktok',n:'تيك توك',c:'var(--c2)',spend:1800,roas:2.0,cpc:3},
+ {k:'google',n:'جوجل',c:'var(--c3)',spend:2200,roas:4.0,cpc:6},
+ {k:'email',n:'إيميل',c:'var(--c4)',spend:300,roas:9.0,cpc:1.5}
+];
+var AOV=450, MARGIN=0.4, BE=1/MARGIN, DAYS=180, today=new Date(2026,10,15);
+var D=[]; // D[day][channelIndex]
+for(var d=0;d<DAYS;d++){
+  var date=new Date(today.getTime()-(DAYS-1-d)*864e5), dow=date.getDay();
+  var season=1+(dow===5||dow===6?0.18:0)+(d/DAYS)*0.25;
+  var row=CH.map(function(c){
+    var sp=c.spend*season*(0.85+R()*0.3);
+    var ro=c.roas*(0.8+R()*0.4)*(c.k==='tiktok'?(1+d/DAYS*0.15):1);
+    var rev=sp*ro, orders=rev/AOV, clicks=sp/c.cpc*(0.9+R()*0.2);
+    return {sp:sp,rev:rev,orders:orders,clicks:clicks,imp:clicks*(c.k==='email'?5:38)};
+  });
+  D.push({date:date,row:row});
+}
+// ---------- حالة ----------
+var state={days:30,ch:'all'};
+var $=function(id){return document.getElementById(id)};
+function fmt(n){return Math.round(n).toLocaleString('en-US')}
+function fmtK(n){return n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':fmt(n)}
+function agg(from,to,ck){
+  var a={sp:0,rev:0,orders:0,clicks:0,imp:0};
+  for(var i=from;i<to;i++)CH.forEach(function(c,j){
+    if(ck==='all'||ck===c.k){var x=D[i].row[j];a.sp+=x.sp;a.rev+=x.rev;a.orders+=x.orders;a.clicks+=x.clicks;a.imp+=x.imp}});
+  return a;
+}
+function metrics(a){return{rev:a.rev,sp:a.sp,roas:a.sp?a.rev/a.sp:0,cac:a.orders?a.sp/a.orders:0,cr:a.clicks?a.orders/a.clicks*100:0,aov:a.orders?a.rev/a.orders:0,orders:a.orders,ctr:a.imp?a.clicks/a.imp*100:0,profit:a.rev*MARGIN-a.sp}}
+// ---------- فلاتر ----------
+function btns(el,items,get,set){
+  el.innerHTML='';
+  items.forEach(function(it){var b=document.createElement('button');b.textContent=it.t;b.setAttribute('aria-pressed',get()===it.v);
+    b.onclick=function(){set(it.v);render()};el.appendChild(b)});
+}
+// ---------- KPI ----------
+function kpis(){
+  var n=state.days, cur=metrics(agg(DAYS-n,DAYS,state.ch)), prev=metrics(agg(DAYS-2*n,DAYS-n,state.ch));
+  var items=[
+   ['الإيراد',fmtK(cur.rev),cur.rev,prev.rev,true],
+   ['الإنفاق',fmtK(cur.sp),cur.sp,prev.sp,false],
+   ['ROAS',cur.roas.toFixed(2)+'x',cur.roas,prev.roas,true],
+   ['تكلفة اكتساب العميل',fmt(cur.cac),cur.cac,prev.cac,false],
+   ['معدل التحويل',cur.cr.toFixed(1)+'%',cur.cr,prev.cr,true],
+   ['متوسط قيمة الطلب',fmt(cur.aov),cur.aov,prev.aov,true],
+   ['عدد الطلبات',fmt(cur.orders),cur.orders,prev.orders,true],
+   ['الربح بعد الإعلان',fmtK(cur.profit),cur.profit,prev.profit,true]];
+  $('kpis').innerHTML=items.map(function(it){
+    var ch=it[3]?(it[2]-it[3])/Math.abs(it[3])*100:0, good=(ch>=0)===it[4], arrow=ch>=0?'▲':'▼';
+    return '<div class="card kpi"><div class="l">'+it[0]+'</div><div class="v">'+it[1]+'</div><div class="d '+(good?'up':'down')+'">'+arrow+' '+Math.abs(ch).toFixed(1)+'% '+(good?'(أفضل)':'(أسوأ)')+'</div></div>';
+  }).join('');
+}
+// ---------- Insight ----------
+function insight(){
+  var n=state.days, rows=CH.map(function(c){var m=metrics(agg(DAYS-n,DAYS,c.k));return{n:c.n,roas:m.roas,sp:m.sp}});
+  var paid=rows.filter(function(r){return r.n!=='إيميل'}).sort(function(a,b){return a.roas-b.roas});
+  var worst=paid[0],best=paid[paid.length-1];
+  var tot=agg(DAYS-n,DAYS,'all');
+  var share=worst.sp/tot.sp*100;
+  var loss=worst.roas<BE;
+  $('insight').innerHTML='<b>القرار المقترح:</b> '+worst.n+' بياخد '+share.toFixed(0)+'% من الميزانية بعائد '+worst.roas.toFixed(1)+'x '+(loss?'(تحت نقطة التعادل '+BE.toFixed(1)+'x، يعني بيخسّر بعد التكلفة)':'(قريب من نقطة التعادل '+BE.toFixed(1)+'x)')+'. جرّب تنقل جزء صغير من ميزانيته لـ'+best.n+' وراقب العائد أسبوعين، لأن العائد بيقل غالبًا كل ما الإنفاق يزيد.';
+}
+// ---------- رسم الخط ----------
+function lineChart(){
+  var n=state.days,W=640,H=250,pl=44,pr=10,pt=10,pb=24;
+  var pts=[];for(var i=DAYS-n;i<DAYS;i++){var a=agg(i,i+1,state.ch);pts.push({d:D[i].date,rev:a.rev,sp:a.sp})}
+  var max=Math.max.apply(null,pts.map(function(p){return p.rev}))*1.1;
+  var X=function(i){return pl+(W-pl-pr)*i/(pts.length-1)}, Y=function(v){return pt+(H-pt-pb)*(1-v/max)};
+  var s='<svg viewBox="0 0 '+W+' '+H+'" id="svg1" role="img" aria-label="رسم خطي للإيراد والإنفاق">';
+  for(var g=0;g<=4;g++){var v=max*g/4,y=Y(v);
+    s+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)" stroke-width="1"/><text x="'+(pl-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="var(--muted)">'+fmtK(v)+'</text>'}
+  var step=n<=7?1:n<=30?7:15;
+  pts.forEach(function(p,i){if(i%step===0||i===pts.length-1&&n<=7){s+='<text x="'+X(i)+'" y="'+(H-6)+'" text-anchor="middle" font-size="11" fill="var(--muted)">'+p.d.getDate()+'/'+(p.d.getMonth()+1)+'</text>'}});
+  function path(k){return pts.map(function(p,i){return(i?'L':'M')+X(i).toFixed(1)+' '+Y(p[k]).toFixed(1)}).join('')}
+  s+='<path d="'+path('rev')+'" fill="none" stroke="var(--c1)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+  s+='<path d="'+path('sp')+'" fill="none" stroke="var(--c2)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+  s+='<g id="cur" style="display:none"><line id="cl" y1="'+pt+'" y2="'+(H-pb)+'" stroke="var(--muted)" stroke-dasharray="3 3"/><circle id="c1" r="4.5" fill="var(--c1)" stroke="var(--surface)" stroke-width="2"/><circle id="c2" r="4.5" fill="var(--c2)" stroke="var(--surface)" stroke-width="2"/></g>';
+  s+='<rect x="'+pl+'" y="0" width="'+(W-pl-pr)+'" height="'+H+'" fill="transparent" id="hit"/></svg>';
+  var box=$('line');box.innerHTML=s+'<div class="tip" id="tip1"></div>';
+  var svg=$('svg1'),tip=$('tip1');
+  function move(e){
+    var r=svg.getBoundingClientRect(),cx=(e.touches?e.touches[0].clientX:e.clientX),x=(cx-r.left)/r.width*W;
+    var i=Math.round((x-pl)/(W-pl-pr)*(pts.length-1));i=Math.max(0,Math.min(pts.length-1,i));
+    var p=pts[i];$('cur').style.display='';
+    $('cl').setAttribute('x1',X(i));$('cl').setAttribute('x2',X(i));
+    $('c1').setAttribute('cx',X(i));$('c1').setAttribute('cy',Y(p.rev));
+    $('c2').setAttribute('cx',X(i));$('c2').setAttribute('cy',Y(p.sp));
+    tip.innerHTML='<b>'+p.d.getDate()+'/'+(p.d.getMonth()+1)+'</b>الإيراد: '+fmt(p.rev)+'<br>الإنفاق: '+fmt(p.sp)+'<br>ROAS: '+(p.rev/p.sp).toFixed(2)+'x';
+    tip.style.display='block';
+    var px=X(i)/W*r.width, tw=tip.offsetWidth;
+    tip.style.left=Math.max(0,Math.min(r.width-tw,px-tw/2))+'px';tip.style.top='0px';
+  }
+  svg.addEventListener('pointermove',move);svg.addEventListener('pointerdown',move);
+  svg.addEventListener('pointerleave',function(){$('cur').style.display='none';tip.style.display='none'});
+}
+// ---------- أعمدة ROAS ----------
+function barChart(){
+  var n=state.days,W=640,rowH=44,H=CH.length*rowH+30,pl=70,pr=50;
+  var rows=CH.map(function(c){var m=metrics(agg(DAYS-n,DAYS,c.k));return{c:c,roas:m.roas,sp:m.sp,rev:m.rev}});
+  var max=Math.max(10,Math.max.apply(null,rows.map(function(r){return r.roas})))*1.05;
+  var X=function(v){return pl+(W-pl-pr)*v/max};
+  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="ROAS لكل قناة">';
+  s+='<line x1="'+X(BE)+'" x2="'+X(BE)+'" y1="0" y2="'+(H-22)+'" stroke="var(--muted)" stroke-dasharray="4 4"/><text x="'+X(BE)+'" y="'+(H-6)+'" text-anchor="middle" font-size="11" fill="var(--muted)">تعادل '+BE.toFixed(1)+'x</text>';
+  rows.forEach(function(r,i){
+    var y=i*rowH+8,dim=(state.ch!=='all'&&state.ch!==r.c.k);
+    s+='<text x="'+(pl-8)+'" y="'+(y+17)+'" text-anchor="end" font-size="13" fill="var(--ink)">'+r.c.n+'</text>';
+    s+='<path d="M'+pl+' '+y+'H'+(X(r.roas)-4)+'a4 4 0 0 1 4 4v16a4 4 0 0 1 -4 4H'+pl+'Z" fill="'+r.c.c+'" opacity="'+(dim?0.3:1)+'" class="bar" data-i="'+i+'"/>';
+    s+='<text x="'+(X(r.roas)+6)+'" y="'+(y+18)+'" font-size="12" fill="var(--ink2)">'+r.roas.toFixed(1)+'x</text>';
+  });
+  s+='</svg>';
+  var box=$('bars');box.innerHTML=s+'<div class="tip" id="tip2"></div>';
+  var tip=$('tip2');
+  Array.prototype.forEach.call(box.querySelectorAll('.bar'),function(b){
+    function show(e){var r=rows[+b.dataset.i],bb=box.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX;
+      tip.innerHTML='<b>'+r.c.n+'</b>إنفاق: '+fmt(r.sp)+'<br>إيراد: '+fmt(r.rev)+'<br>ROAS: '+r.roas.toFixed(2)+'x';tip.style.display='block';
+      tip.style.left=Math.max(0,Math.min(bb.width-tip.offsetWidth,cx-bb.left-tip.offsetWidth/2))+'px';tip.style.top=(b.getBoundingClientRect().top-bb.top-tip.offsetHeight-4)+'px'}
+    b.addEventListener('pointerdown',show);b.addEventListener('pointermove',show);b.addEventListener('pointerleave',function(){tip.style.display='none'});
+  });
+}
+// ---------- جدول ----------
+function table(){
+  var n=state.days,h='<tr><th>القناة</th><th class="n">الإنفاق</th><th class="n">الإيراد</th><th class="n">ROAS</th><th class="n">CAC</th><th>الحالة</th></tr>';
+  CH.forEach(function(c){var m=metrics(agg(DAYS-n,DAYS,c.k));
+    var st=m.roas>=BE*1.2?['▲','جيد','var(--good)']:m.roas>=BE?['●','متوسط','var(--warn)']:['▼','خسارة','var(--bad)'];
+    h+='<tr><td><i class="sw" style="background:'+c.c+'"></i>'+c.n+'</td><td class="n">'+fmt(m.sp)+'</td><td class="n">'+fmt(m.rev)+'</td><td class="n">'+m.roas.toFixed(2)+'x</td><td class="n">'+fmt(m.cac)+'</td><td class="st" style="color:'+st[2]+'">'+st[0]+' '+st[1]+'</td></tr>'});
+  $('tbl').innerHTML=h;
+}
+function render(){
+  btns($('period'),[{t:'7 أيام',v:7},{t:'30 يوم',v:30},{t:'90 يوم',v:90}],function(){return state.days},function(v){state.days=v});
+  btns($('channel'),[{t:'الكل',v:'all'}].concat(CH.map(function(c){return{t:c.n,v:c.k}})),function(){return state.ch},function(v){state.ch=v});
+  insight();kpis();lineChart();barChart();table();
+}
+render();
+})();
+</script>
+</body>
+</html>
