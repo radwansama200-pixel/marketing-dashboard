@@ -21,5 +21,5 @@ An interactive dashboard that turns ad-spend data into a clear budget decision.
 - Revenue attribution depends on the client's attribution model; channels can double-count the same order
 
 ## Built by
-Samaa Radwan, Data Analyst
+Samaa El Iraqi, Data Analyst
 Google Data Analytics | Microsoft PL-300
